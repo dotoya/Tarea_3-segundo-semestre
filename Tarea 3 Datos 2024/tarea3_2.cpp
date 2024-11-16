@@ -83,7 +83,9 @@ int main(){
 
 
 
-
+    delete[] precio;
+    delete[] plato;
+    delete[] l_m;
     file.close();
     return 0;
 }
