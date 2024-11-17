@@ -8,15 +8,16 @@ struct Plato {
     int precio ;
 };
 
+int cant_mesas; // variable que nos va a servir para formar el arreglo inicial y que no genere errores en caso que se trate de hacer un pedido a la mesa n+1, cuando solo hay n mesas
+
 class Pedido {
     private :
-    Plato * platos ; // arreglo de platos en el pedido , tama ñ o inicial 25
+    Plato * platos ; // arreglo de platos en el pedido , tamaño inicial 25
     bool servir ; // true para servir , false para llevar
     size_t cant_platos ;
 
     public :
     Pedido (bool servir) : platos(new Plato[25]), servir(servir), cant_platos(0) {
-
     };
     ~ Pedido (){
         delete[] platos;
@@ -25,8 +26,10 @@ class Pedido {
         platos[cant_platos].nombre = plato->nombre;
         platos[cant_platos].precio = plato->precio;
         cant_platos += 1;
+
         cout<<platos[cant_platos-1].nombre<<endl;
     } ; // agrega un plato al pedido
+
     int precio_total (){
         int n= 0;
         int precio_d= 0;
@@ -40,9 +43,9 @@ class Pedido {
 
 class Registro {
     private :
-    Pedido * pedidos ; // arreglo de pedidos , tama ñ o inicial n ( cantidad de mesas )
+    Pedido * pedidos ; // arreglo de pedidos , tamaño inicial n (cantidad de mesas)
     size_t size ;
-    void ajustar_arreglo () ; // ajusta el tama ñ o de la tabla de hashing
+    void ajustar_arreglo () ; // ajusta el tamaño de la tabla de hashing
     int ganancias ;
 
     public :
@@ -50,7 +53,7 @@ class Registro {
     ~ Registro () ;
     void agregar_pedido ( Pedido * pedido ) ;
     Pedido * get_pedido ( int id , bool tipo ) ; // Retorna el pedido según id y tipo ( servir true llevar false )
-    Pedido * eliminar_pedido ( int id , bool tipo ) ; // Elimina el pedido seg ú n id y tipo
+    Pedido * eliminar_pedido ( int id , bool tipo ) ; // Elimina el pedido según id y tipo
 };
 
 int main(){
