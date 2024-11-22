@@ -17,11 +17,14 @@ class Pedido {
     size_t cant_platos ;
 
     public :
-    Pedido (bool servir) : platos(new Plato[25]), servir(servir), cant_platos(0) {
+    Pedido (): platos(new Plato[25]), servir(servir), cant_platos(0) {
+
     };
+
     ~ Pedido (){
         delete[] platos;
     } ;
+    
     void agregar_plato ( Plato* plato ){
         platos[cant_platos].nombre = plato->nombre;
         platos[cant_platos].precio = plato->precio;
@@ -43,14 +46,20 @@ class Pedido {
 
 class Registro {
     private :
-    Pedido * pedidos ; // arreglo de pedidos , tamaño inicial n (cantidad de mesas)
+    Pedido *pedidos ; // arreglo de pedidos , tamaño inicial n (cantidad de mesas)
     size_t size ;
     void ajustar_arreglo () ; // ajusta el tamaño de la tabla de hashing
     int ganancias ;
 
     public :
-    Registro () ;
-    ~ Registro () ;
+    Registro (): size(cant_mesas), ganancias(0){
+        pedidos = new Pedido[size];
+    }
+
+    ~ Registro (){
+        delete[] pedidos;
+    }
+
     void agregar_pedido ( Pedido * pedido ) ;
     Pedido * get_pedido ( int id , bool tipo ) ; // Retorna el pedido según id y tipo ( servir true llevar false )
     Pedido * eliminar_pedido ( int id , bool tipo ) ; // Elimina el pedido según id y tipo
@@ -103,7 +112,7 @@ int main(){
         cout<<Orden[j].precio<<endl;
     }
 
-    Pedido* prueba= new Pedido(true);
+    Pedido* prueba= new Pedido();
     prueba->agregar_plato(&Orden[0]);
     prueba->agregar_plato(&Orden[4]);
     cout<<prueba->precio_total()<<endl;
