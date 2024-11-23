@@ -15,9 +15,10 @@ class Pedido {
     Plato * platos ; // arreglo de platos en el pedido , tamaño inicial 25
     bool servir ; // true para servir , false para llevar
     size_t cant_platos ;
+    int id;
 
     public :
-    Pedido (): platos(new Plato[25]), servir(servir), cant_platos(0) {
+    Pedido (): platos(new Plato[25]), servir(servir), cant_platos(0), id(-1) {
 
     };
 
@@ -42,6 +43,21 @@ class Pedido {
         };
         return precio_d;
     } ; // retorna la suma del precio de todos los platos del pedido
+
+    void definir_TFyID(int Puesto, bool tf){
+        id= Puesto;
+        servir= tf;
+        cout<<id<<endl;
+        cout<<servir<<endl;
+    }
+
+    int dar_id(){
+        return id;
+    }
+
+    bool dar_tf(){
+        return servir;
+    }
 };
 
 class Registro {
@@ -53,16 +69,49 @@ class Registro {
 
     public :
     Registro (): size(cant_mesas), ganancias(0){
-        pedidos = new Pedido[size];
     }
 
     ~ Registro (){
         delete[] pedidos;
     }
 
-    void agregar_pedido ( Pedido * pedido ) ;
-    Pedido * get_pedido ( int id , bool tipo ) ; // Retorna el pedido según id y tipo ( servir true llevar false )
+    void agregar_pedido ( Pedido * pedido ){
+        bool ocupada= false;
+        bool insertado= false;
+        int total_casillas= 0;
+        int x= 0;
+        for(int z= 0; pedidos[z].dar_id()!=0; z++){
+            if(pedido->dar_id()==pedidos[z].dar_id()&&pedido->dar_tf()==pedidos[z].dar_tf()){
+                ocupada= true;
+            }
+            total_casillas+=1;
+            cout<<total_casillas<<endl;
+        }
+        if(pedido->dar_tf()==true){
+            x= pedido->dar_id()-1;
+        }
+        if(ocupada==false){
+            while(insertado!=true){
+                if(pedidos[x].dar_id()==-1){
+                    pedidos[x]= *pedido;
+                    insertado=true;
+                }
+                else{
+                    x= (x+1)%total_casillas;
+                }
+            }
+        }
+        cout<<x<<endl;
+        cout<<pedidos[x].dar_id()<<endl;
+        cout<<pedidos[x].dar_tf()<<endl;
+    } ;
+    Pedido * get_pedido ( int id , bool tipo ){} ; // Retorna el pedido según id y tipo ( servir true llevar false )
     Pedido * eliminar_pedido ( int id , bool tipo ) ; // Elimina el pedido según id y tipo
+    void mesas_empezar (int mesas_iniciales){
+        size= mesas_iniciales;
+        pedidos = new Pedido[size];
+    }
+
 };
 
 int main(){
@@ -116,6 +165,13 @@ int main(){
     prueba->agregar_plato(&Orden[0]);
     prueba->agregar_plato(&Orden[4]);
     cout<<prueba->precio_total()<<endl;
+    prueba->definir_TFyID(4,true);
+
+    Registro* testing= new Registro();
+    testing->mesas_empezar(10);
+    testing->agregar_pedido(prueba);
+    
+
 
 
 
