@@ -70,7 +70,7 @@ class Registro {
     private :
     Pedido *pedidos ; // arreglo de pedidos , tamaño inicial n (cantidad de mesas)
     size_t size ;
-    void ajustar_arreglo () ; // ajusta el tamaño de la tabla de hashing
+    void ajustar_arreglo (); // ajusta el tamaño de la tabla de hashing
     int ganancias ;
 
     public :
@@ -171,6 +171,20 @@ class Registro {
         pedidos = new Pedido[size];
     }
 
+    float dar_fc(){
+        float total_casillas= 0;
+        float total_ocupadas= 0;
+        float resultado;
+        for(int y= 0; pedidos[y].dar_id()!=0; y++){
+            if(pedidos[y].dar_id()!=-1){
+                total_ocupadas+=1;
+            }
+            total_casillas+=1;
+        }
+        resultado= total_ocupadas/total_casillas;
+        return resultado;
+    }
+
 
 
 };
@@ -233,6 +247,7 @@ int main(){
     testing->agregar_pedido(prueba);
     testing->get_pedido(4 , true);
     testing->get_pedido(0 , false);
+    cout<<testing->dar_fc()<<endl;
     testing->eliminar_pedido(4 , true);
 
     prueba->agregar_plato(&Orden[0]);
@@ -240,6 +255,7 @@ int main(){
     cout<<prueba->precio_total()<<endl;
     prueba->definir_TFyID(4,true);
     testing->get_pedido(4 , true);
+    cout<<testing->dar_fc()<<endl;
 
 
 
