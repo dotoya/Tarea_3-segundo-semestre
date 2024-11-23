@@ -8,7 +8,7 @@ struct Plato {
     int precio ;
 };
 
-int cant_mesas; // variable que nos va a servir para formar el arreglo inicial y que no genere errores en caso que se trate de hacer un pedido a la mesa n+1, cuando solo hay n mesas
+//int cant_mesas; // variable que nos va a servir para formar el arreglo inicial y que no genere errores en caso que se trate de hacer un pedido a la mesa n+1, cuando solo hay n mesas
 
 class Pedido {
     private :
@@ -68,8 +68,7 @@ class Registro {
     int ganancias ;
 
     public :
-    Registro (): size(cant_mesas), ganancias(0){
-    }
+    Registro (): size(0), ganancias(0){}
 
     ~ Registro (){
         delete[] pedidos;
@@ -80,16 +79,19 @@ class Registro {
         bool insertado= false;
         int total_casillas= 0;
         int x= 0;
+
         for(int z= 0; pedidos[z].dar_id()!=0; z++){
             if(pedido->dar_id()==pedidos[z].dar_id()&&pedido->dar_tf()==pedidos[z].dar_tf()){
-                ocupada= true;
+                ocupada = true;
             }
             total_casillas+=1;
             cout<<total_casillas<<endl;
         }
+
         if(pedido->dar_tf()==true){
             x= pedido->dar_id()-1;
         }
+
         if(ocupada==false){
             while(insertado!=true){
                 if(pedidos[x].dar_id()==-1){
@@ -105,8 +107,26 @@ class Registro {
         cout<<pedidos[x].dar_id()<<endl;
         cout<<pedidos[x].dar_tf()<<endl;
     } ;
-    Pedido * get_pedido ( int id , bool tipo ){} ; // Retorna el pedido según id y tipo ( servir true llevar false )
+
+    Pedido * get_pedido ( int id , bool tipo ){
+        int w = 0; /*<- positción del pedido en el arreglo*/
+        while( pedidos[w].dar_id() != id && pedidos[w].dar_tf() != tipo && w<size){
+            w++;
+        }
+
+        if(pedidos[w].dar_id() == id && pedidos[w].dar_tf() == tipo){
+            cout<<"se encontro el pedido "<<&pedidos[w]<<endl;
+            return &pedidos[w];
+        }
+
+        else{
+            cout<<"no se encontro el pedido solicitado"<<endl;
+            return nullptr;
+        }
+    } ; // Retorna el pedido según id y tipo ( servir true llevar false )
+
     Pedido * eliminar_pedido ( int id , bool tipo ) ; // Elimina el pedido según id y tipo
+    
     void mesas_empezar (int mesas_iniciales){
         size= mesas_iniciales;
         pedidos = new Pedido[size];
@@ -170,6 +190,8 @@ int main(){
     Registro* testing= new Registro();
     testing->mesas_empezar(10);
     testing->agregar_pedido(prueba);
+    testing->get_pedido(4 , true);
+    testing->get_pedido(0 , false);
     
 
 
