@@ -34,15 +34,13 @@ class Pedido {
         cout<<platos[cant_platos-1].nombre<<endl;
     } ; // agrega un plato al pedido
 
-    int precio_total (){
-        int n= 0;
-        int precio_d= 0;
-        while(platos[n].precio != 0){
-            precio_d += platos[n].precio;
-            n+=1;
-        };
-        return precio_d;
-    } ; // retorna la suma del precio de todos los platos del pedido
+    int precio_total() {
+    int precio_d = 0;
+    for (size_t n = 0; n < cant_platos; ++n) {
+        precio_d += platos[n].precio;
+    }
+    return precio_d;
+    }
 
     void definir_TFyID(int Puesto, bool tf){
         id= Puesto;
@@ -58,6 +56,14 @@ class Pedido {
     bool dar_tf(){
         return servir;
     }
+
+    Plato* get_platos() {
+        return platos;  // Devuelve el arreglo de platos
+    }
+
+    void establecer_cant_platos(size_t cantidad) {
+        cant_platos = cantidad;
+    }
 };
 
 class Registro {
@@ -70,7 +76,7 @@ class Registro {
     public :
     Registro (): size(0), ganancias(0){}
 
-    ~ Registro (){
+    ~Registro (){
         delete[] pedidos;
     }
 
@@ -125,12 +131,47 @@ class Registro {
         }
     } ; // Retorna el pedido según id y tipo ( servir true llevar false )
 
-    Pedido * eliminar_pedido ( int id , bool tipo ) ; // Elimina el pedido según id y tipo
+    Pedido * eliminar_pedido ( int id , bool tipo ){
+
+        int pos = 0;
+        size_t pos_2 = 0;
+        int ganan_total;
+
+        while( pedidos[pos].dar_id() != id && pedidos[pos].dar_tf() != tipo && pos_2<size){
+            pos++;
+            pos_2 = pos;
+        }
+
+        if(pedidos[pos].dar_id() == id && pedidos[pos].dar_tf() == tipo){
+            ganan_total = pedidos[pos].precio_total();
+
+            cout<<"total : "<<ganan_total<<endl;
+            cout<<"propina : "<<ganan_total/10<<endl;
+            cout<<"total + propina :"<<ganan_total+(ganan_total/10)<<endl;
+            cout<<"Factor de carga : "<< "falta hacer esa función XD"<<endl; //falta hacer la función del factor de carga
+
+            ganancias += (ganan_total+(ganan_total/10));
+        }
+        
+
+        Plato* platos = pedidos[pos].get_platos();
+        for (int i = 0; i < 25; i++) {
+            platos[i].nombre = '\0';
+            platos[i].precio = 0;
+        }
+
+        pedidos[pos].establecer_cant_platos(0);
+        pedidos[pos].definir_TFyID(-1, false); // Asignamos un valor especial a 'id' para indicar que está vacío
+        cout<<"se a eliminado el pedido de correctamente"<<endl;
+        return nullptr;
+    } // Elimina el pedido según id y tipo
     
     void mesas_empezar (int mesas_iniciales){
         size= mesas_iniciales;
         pedidos = new Pedido[size];
     }
+
+
 
 };
 
@@ -192,8 +233,13 @@ int main(){
     testing->agregar_pedido(prueba);
     testing->get_pedido(4 , true);
     testing->get_pedido(0 , false);
-    
+    testing->eliminar_pedido(4 , true);
 
+    prueba->agregar_plato(&Orden[0]);
+    prueba->agregar_plato(&Orden[4]);
+    cout<<prueba->precio_total()<<endl;
+    prueba->definir_TFyID(4,true);
+    testing->get_pedido(4 , true);
 
 
 
