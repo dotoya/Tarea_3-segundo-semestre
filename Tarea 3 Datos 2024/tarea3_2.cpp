@@ -229,96 +229,93 @@ int main() {
 
     // Crear la instancia de Registro
     Registro *testing = new Registro();
-    
-    // Llamar a mesas_empezar con un número de mesas, por ejemplo, 50
-    int mesas_iniciales = 10;
-    testing->mesas_empezar(mesas_iniciales);  // Tamaño de la tabla hash ajustado
-    cout << "Tabla hash de tamaño " << M << " creada." << endl;
-
     Pedido *prueba = new Pedido();
-    prueba->agregar_plato(&Orden[0]);
-    prueba->agregar_plato(&Orden[4]);
-    prueba->definir_TFyID(4, true);
-
-    testing->agregar_pedido(prueba);
-    testing->get_pedido(4, true);
-    cout << "Factor de carga: " << testing->dar_fc() << endl;
-    testing->eliminar_pedido(4, true);
+    int mesas_iniciales;
     
-    Registro *Main;
     bool flag = true;
-    bool primera_vez= true;
-    while(flag){
-        string input , acción , exacta, mas_exacta, exacta_res;
-        getline(cin,input);
-        if(primera_vez==true){
-            Main->mesas_empezar(stoi(input));
-            primera_vez= false;
+    bool primera_vez = true;
+
+    while(flag) {
+        string input, acción, exacta, mas_exacta, exacta_res;
+        getline(cin, input);
+
+        if (primera_vez == true) {
+            try {
+                // Manejo seguro de la conversión a entero
+                mesas_iniciales = stoi(input);
+                testing->mesas_empezar(mesas_iniciales);
+                primera_vez = false;
+                cout << "Tabla hash de tamaño " << M << " creada." << endl;
+            } 
+            catch (const std::invalid_argument& e) {
+                cout << "Error: Entrada no válida para el número de mesas." << endl;
+                continue; // Volver a pedir el input en caso de error
+            }
+            catch (const std::out_of_range& e) {
+                cout << "Error: Número de mesas fuera de rango." << endl;
+                continue;
+            }
         }
 
-        if(input == "cerrar"){
-            break;
+        if(input == "cerrar") {
+        break;
         }
 
         size_t espacio_pos = input.find(' ');
-        acción = input.substr(0,espacio_pos);
+        acción = input.substr(0, espacio_pos);
         exacta = input.substr(espacio_pos + 1);
-        size_t espacio_pos2= exacta.find(' ');
-        mas_exacta= exacta.substr(espacio_pos2+1);
-        exacta_res= exacta.substr(0,espacio_pos2);
+        size_t espacio_pos2 = exacta.find(' ');
+        mas_exacta = exacta.substr(espacio_pos2 + 1);
+        exacta_res = exacta.substr(0, espacio_pos2);
 
-
-        if(acción == "registrar"){
+        if (acción == "registrar") {
             bool sol;
-            if(exacta_res=="mesa"){
-                sol= true;
+            if (exacta_res == "mesa") {
+                sol = true;
             }
-            if(exacta_res=="llevar"){
-                sol= false;
+            else if (exacta_res == "llevar") {
+                sol = false;
             }
-            Pedido *temporal= new Pedido();
-            temporal->definir_TFyID(sol, stoi(mas_exacta));
-            bool flag_2= true;
-            while(flag_2){
-                string frase, orden, plato;
-                getline(cin,frase);
 
-                if(frase=="pedir"){
-                    Main->agregar_pedido(temporal);
-                    cout<<exacta+" Registrado"<<endl;
-                    delete[] temporal;
+            try {
+                prueba->definir_TFyID(stoi(mas_exacta), sol);
+            } catch (const std::invalid_argument& e) {
+                cout << "Error: ID de mesa o llevar no válido." << endl;
+                continue;
+            }
+
+            bool flag_2 = true;
+            while(flag_2) {
+                string frase, orden, plato;
+                getline(cin, frase);
+
+                if (frase == "pedir") {
+                    testing->agregar_pedido(prueba);
+                    cout << exacta + " Registrado" << endl;
                     break;
                 }
+
                 size_t pos_act = frase.find(' ');
-                orden = frase.substr(0,pos_act);
+                orden = frase.substr(0, pos_act);
                 plato = frase.substr(pos_act + 1);
-                if(orden=="agregar"){
-                    for(int p= 0; p<plat_act; p++){
-                        if(Orden[p].nombre==plato){
-                            temporal->agregar_plato(&Orden[p]);
+                if (orden == "agregar") {
+                    for (int p = 0; p < plat_act; p++) {
+                        if (Orden[p].nombre == plato) {
+                            prueba->agregar_plato(&Orden[p]);
                         }
                     }
                 }
             }
         }
-
-        if(acción == "sm"){
-        
-        }
-
-        if(acción == "br"){
-        
-        }
-
-        if(acción == "wr"){
-        
-        }
+        // Aquí podrían ir más condiciones para otros comandos.
     }
+
+
 
 
     delete[] Orden;
     delete[] l_m;
     file.close();
-    delete testing;  // Liberar memoria
+    delete testing;
     return 0;
 }
