@@ -115,6 +115,15 @@ public:
     void establecer_cant_platos(size_t cantidad) {
         cant_platos = cantidad;
     }
+
+    void recuento(){
+        int suma_f= 0;
+        for(int j; platos[j].nombre!= ""; j++){
+            cout<<platos[j].nombre<<endl;
+            suma_f+= platos[j].precio;
+        }
+        cout<<suma_f<<endl;
+    }
 };
 
 class Registro {
@@ -306,6 +315,22 @@ int main() {
                     }
                 }
             }
+        }
+
+        if(acción== "info"){
+            Pedido *te= new Pedido();
+            bool sol_i;
+            if (exacta_res == "mesa") {
+                sol_i = true;
+            }
+            else if (exacta_res == "llevar") {
+                sol_i = false;
+            }
+            (testing->get_pedido(stoi(mas_exacta), sol_i))->recuento();
+        }
+
+        if(acción== "pagar"){
+            
         }
         // Aquí podrían ir más condiciones para otros comandos.
     }
