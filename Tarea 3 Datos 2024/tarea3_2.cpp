@@ -9,11 +9,19 @@ int M;  // Tamaño de la tabla hash, se definirá dinámicamente
 
 typedef int tipoClave;
 
+struct Plato {
+    std::string nombre;
+    int precio;
+};
+
 struct tipoInfo {
     // Información del pedido (solo un ejemplo, podrías agregar más detalles)
     int id;
     bool tipo;  // true para servir, false para llevar
     int precio_total;
+    Plato *platos;
+
+    tipoInfo(): platos(new Plato[25]){};
 };
 
 struct ranura {
@@ -62,10 +70,6 @@ tipoInfo hashSearch(ranura HT[], tipoClave k) {
 
 // Definición de las clases
 
-struct Plato {
-    std::string nombre;
-    int precio;
-};
 
 class Pedido {
 private:
@@ -100,6 +104,10 @@ public:
         servir = tf;
     }
 
+    void definir_Pl(Plato *todo){
+        platos= todo;
+    }
+
     int dar_id() {
         return id;
     }
@@ -118,7 +126,7 @@ public:
 
     void recuento(){
         int suma_f= 0;
-        for(int j; platos[j].nombre!= ""; j++){
+        for(int j;platos[j].nombre!= ""; j++){
             cout<<platos[j].nombre<<endl;
             suma_f+= platos[j].precio;
         }
@@ -129,15 +137,20 @@ public:
 class Registro {
 private:
     int ganancias;
+    Pedido *pedidos;
+    size_t size;
 
 public:
-    Registro() : ganancias(0) {}
+    Registro() :size(0), ganancias(0) {}
+
+
 
     void agregar_pedido(Pedido *pedido) {
         tipoInfo info;
         info.id = pedido->dar_id();
         info.tipo = pedido->dar_tf();
         info.precio_total = pedido->precio_total();
+        info.platos= pedido->get_platos();
 
         // Inserción del pedido en la tabla hash
         int resultado = hashInsert(HT, info.id, info);
@@ -154,6 +167,8 @@ public:
             cout << "Pedido encontrado: " << info.id << endl;
             Pedido *pedido = new Pedido();
             pedido->definir_TFyID(info.id, info.tipo);
+            pedido->definir_Pl(info.platos);
+            
             return pedido;
         } else {
             cout << "Pedido no encontrado." << endl;
@@ -191,6 +206,7 @@ public:
         for (int i = 0; i < M; i++) {
             HT[i].clave = VACIA;  // Inicializar las ranuras como vacías
         }
+        pedidos= new Pedido[M];
     }
 };
 
@@ -318,7 +334,6 @@ int main() {
         }
 
         if(acción== "info"){
-            Pedido *te= new Pedido();
             bool sol_i;
             if (exacta_res == "mesa") {
                 sol_i = true;
