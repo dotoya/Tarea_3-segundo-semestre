@@ -72,121 +72,118 @@ class Registro {
     size_t size ;
     void ajustar_arreglo (); // ajusta el tamaño de la tabla de hashing
     int ganancias ;
+    bool ocupa_libr;
 
     public :
-    Registro (): size(0), ganancias(0){}
+    Registro (): size(0), ganancias(0), pedidos(nullptr){}
 
     ~Registro (){
         delete[] pedidos;
     }
 
-    void agregar_pedido ( Pedido * pedido ){
-        bool ocupada= false;
-        bool insertado= false;
-        int total_casillas= 0;
-        int x= 0;
+    void agregar_pedido(Pedido* pedido) {
+        bool insertado = false;
+        int x = pedido->dar_id() - 1;  // Índice inicial basado en el ID del pedido
+        int total_casillas = size;
 
-        for(int z= 0; pedidos[z].dar_id()!=0; z++){
-            if(pedido->dar_id()==pedidos[z].dar_id()&&pedido->dar_tf()==pedidos[z].dar_tf()){
-                ocupada = true;
-            }
-            total_casillas+=1;
-            cout<<total_casillas<<endl;
-        }
-
-        if(pedido->dar_tf()==true){
-            x= pedido->dar_id()-1;
-        }
-
-        if(ocupada==false){
-            while(insertado!=true){
-                if(pedidos[x].dar_id()==-1){
-                    pedidos[x]= *pedido;
-                    insertado=true;
-                }
-                else{
-                    x= (x+1)%total_casillas;
-                }
+        while (!insertado) {
+            // Verificamos si la casilla está vacía o ya contiene un pedido con la misma ID y tipo
+            if (pedidos[x].dar_id() == -1 || (pedidos[x].dar_id() == pedido->dar_id() && pedidos[x].dar_tf() == pedido->dar_tf())) {
+                pedidos[x] = *pedido;  // Insertamos el pedido
+                insertado = true;
+            } 
+            else{
+                x = (x + 1) % total_casillas;  // Sondeo lineal: nos movemos a la siguiente casilla
             }
         }
-        cout<<x<<endl;
-        cout<<pedidos[x].dar_id()<<endl;
-        cout<<pedidos[x].dar_tf()<<endl;
-    } ;
+        cout << "Pedido insertado en la posición: " << x << endl;
+    }
 
-    Pedido * get_pedido ( int id , bool tipo ){
-        int w = 0; /*<- positción del pedido en el arreglo*/
-        while( pedidos[w].dar_id() != id && pedidos[w].dar_tf() != tipo && w<size){
-            w++;
+    Pedido* get_pedido(int id, bool tipo) {
+        int x = id - 1;  // Índice basado en el ID
+        int total_casillas = size;
+
+        while (pedidos[x].dar_id() != -1 && (pedidos[x].dar_id() != id || pedidos[x].dar_tf() != tipo)) {
+            x = (x + 1) % total_casillas;  // Sondeo lineal
+            if (pedidos[x].dar_id() == -1) {
+                cout << "Pedido no encontrado" << endl;
+                return nullptr;
+            }
         }
 
-        if(pedidos[w].dar_id() == id && pedidos[w].dar_tf() == tipo){
-            cout<<"se encontro el pedido "<<&pedidos[w]<<endl;
-            return &pedidos[w];
+        if (pedidos[x].dar_id() == id && pedidos[x].dar_tf() == tipo){
+            cout << "Pedido encontrado en la posición: " << x << endl;
+            return &pedidos[x];
+        }
+        return nullptr;
+    }
+
+    Pedido* eliminar_pedido(int id, bool tipo) {
+        int x = id - 1;  // Índice basado en el ID
+        int total_casillas = size;
+
+        while (pedidos[x].dar_id() != -1 && (pedidos[x].dar_id() != id || pedidos[x].dar_tf() != tipo)) {
+            x = (x + 1) % total_casillas;  // Sondeo lineal
+            if (pedidos[x].dar_id() == -1) {
+                cout << "Pedido no encontrado" << endl;
+                return nullptr;
+            }
         }
 
-        else{
-            cout<<"no se encontro el pedido solicitado"<<endl;
+        if (pedidos[x].dar_id() == id && pedidos[x].dar_tf() == tipo) {
+            // Guardamos los platos y los mostramos antes de eliminar
+            Plato* platos = pedidos[x].get_platos();
+            int ganan_total = pedidos[x].precio_total();
+            for (int i = 0; i < 25; i++) {
+                if (platos[i].precio != 0) {
+                    cout << platos[i].nombre << " - " << platos[i].precio << endl;
+                }
+            }
+
+            // Se elimina el pedido
+            Plato* platos_eliminar = pedidos[x].get_platos();
+            for (int i = 0; i < 25; i++) {
+                platos_eliminar[i].nombre = '\0';
+                platos_eliminar[i].precio = 0;
+            }
+
+            pedidos[x].establecer_cant_platos(0);
+            pedidos[x].definir_TFyID(-1, false);  // Indicamos que la casilla está vacía
+
+            float factor_c = dar_fc();
+            cout << "Total: " << ganan_total << endl;
+            cout << "Propina: " << ganan_total / 10 << endl;
+            cout << "Total + Propina: " << ganan_total + (ganan_total / 10) << endl;
+            cout << "Factor de carga: " << factor_c << endl;
+
+            ganancias += (ganan_total + (ganan_total / 10));  // Acumulamos las ganancias
+            cout << "Pedido eliminado correctamente." << endl;
             return nullptr;
         }
-    } ; // Retorna el pedido según id y tipo ( servir true llevar false )
 
-    Pedido * eliminar_pedido ( int id , bool tipo ){
-
-        int pos = 0;
-        size_t pos_2 = 0;
-        int ganan_total;
-
-        while( pedidos[pos].dar_id() != id && pedidos[pos].dar_tf() != tipo && pos_2<size){
-            pos++;
-            pos_2 = pos;
-        }
-
-        if(pedidos[pos].dar_id() == id && pedidos[pos].dar_tf() == tipo){
-            ganan_total = pedidos[pos].precio_total();
-
-            cout<<"total : "<<ganan_total<<endl;
-            cout<<"propina : "<<ganan_total/10<<endl;
-            cout<<"total + propina :"<<ganan_total+(ganan_total/10)<<endl;
-            cout<<"Factor de carga : "<< "falta hacer esa función XD"<<endl; //falta hacer la función del factor de carga
-
-            ganancias += (ganan_total+(ganan_total/10));
-        }
-        
-
-        Plato* platos = pedidos[pos].get_platos();
-        for (int i = 0; i < 25; i++) {
-            platos[i].nombre = '\0';
-            platos[i].precio = 0;
-        }
-
-        pedidos[pos].establecer_cant_platos(0);
-        pedidos[pos].definir_TFyID(-1, false); // Asignamos un valor especial a 'id' para indicar que está vacío
-        cout<<"se a eliminado el pedido de correctamente"<<endl;
-        return nullptr;
-    } // Elimina el pedido según id y tipo
+        return nullptr;  // Pedido no encontrado
+    }
     
-    void mesas_empezar (int mesas_iniciales){
-        size= mesas_iniciales;
+    void mesas_empezar(int mesas_iniciales) {
+        size = mesas_iniciales;
         pedidos = new Pedido[size];
-    }
-
-    float dar_fc(){
-        float total_casillas= 0;
-        float total_ocupadas= 0;
-        float resultado;
-        for(int y= 0; pedidos[y].dar_id()!=0; y++){
-            if(pedidos[y].dar_id()!=-1){
-                total_ocupadas+=1;
-            }
-            total_casillas+=1;
+        for (int i = 0; i < size; ++i) {
+            pedidos[i].definir_TFyID(-1, false);  // Inicializamos todas las casillas como vacías
         }
-        resultado= total_ocupadas/total_casillas;
-        return resultado;
     }
 
+    float dar_fc() {
+        int total_casillas = size;
+        int total_ocupadas = 0;
 
+        for (int i = 0; i < total_casillas; ++i) {
+            if (pedidos[i].dar_id() != -1) {
+                total_ocupadas++;
+            }
+        }
 
+        return static_cast<float>(total_ocupadas) / total_casillas;
+    }
 };
 
 int main(){
@@ -254,7 +251,7 @@ int main(){
     prueba->agregar_plato(&Orden[4]);
     cout<<prueba->precio_total()<<endl;
     prueba->definir_TFyID(4,true);
-    testing->get_pedido(4 , true);
+    testing->get_pedido(4,true);
     cout<<testing->dar_fc()<<endl;
 
 
