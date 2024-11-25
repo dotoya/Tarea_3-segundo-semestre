@@ -178,12 +178,22 @@ public:
 
     void eliminar_pedido(int id, bool tipo) {
         tipoInfo info = hashSearch(HT, id);
+        int profit= 0;
         if (info.id != -1 && info.tipo == tipo) {
             cout << "Pedido eliminado: " << info.id << endl;
-            ganancias += info.precio_total;
             // Remover el pedido de la tabla hash
-            info.id = VACIA;
-            cout << "Ganancias: " << ganancias << endl;
+            for(int l= 0; info.platos[l].nombre!=""; l++){
+                cout<<info.platos[l].nombre<<" - "<<info.platos[l].precio<<endl;
+                profit+= info.platos[l].precio;
+                info.platos[l].nombre= "";
+                info.platos[l].precio= 0;
+            }
+            ganancias+= profit;
+            info.id = -1;
+            info.precio_total= 0;
+            cout << "total: " << profit << endl;
+            cout << "propina: " << (profit/10) << endl;
+            cout << "total + propina: " << (profit+(profit/10)) << endl;
         } else {
             cout << "Pedido no encontrado." << endl;
         }
@@ -207,7 +217,7 @@ public:
             HT[i].clave = VACIA;  // Inicializar las ranuras como vacías
         }
         pedidos= new Pedido[M];
-    }
+    };
 };
 
 int main() {
@@ -345,7 +355,15 @@ int main() {
         }
 
         if(acción== "pagar"){
-            
+            bool sol_a;
+            if (exacta_res == "mesa") {
+                sol_a = true;
+            }
+            else if (exacta_res == "llevar") {
+                sol_a = false;
+            }
+            testing->eliminar_pedido(stoi(mas_exacta),sol_a);
+            cout<<testing->dar_fc()<<endl;;
         }
         // Aquí podrían ir más condiciones para otros comandos.
     }
