@@ -3,10 +3,8 @@
 #include <string>
 using namespace std;
 
-int M;  // Tamaño de la tabla hash, se definirá dinámicamente
-
-#define VACIA -1  // Valor que indica que la ranura está vacía
-
+int M;
+#define VACIA -1
 typedef int tipoClave;
 
 struct Plato {
@@ -15,9 +13,8 @@ struct Plato {
 };
 
 struct tipoInfo {
-    // Información del pedido (solo un ejemplo, podrías agregar más detalles)
     int id;
-    bool tipo;  // true para servir, false para llevar
+    bool tipo;
     int precio_total;
     Plato *platos;
 
@@ -29,68 +26,161 @@ struct ranura {
     tipoInfo info;
 };
 
-ranura* HT;  // Puntero a la tabla hash dinámica
+ranura* HT;
 
-// Función hash (simple mod)
+/* ****
+* int h
+******
+* Resumen Función
+* Calcula la posición de una clave en la tabla hash usando el algoritmo de dispersión módulo.
+******
+* Input :
+* tipoClave k : Clave a insertar o buscar en la tabla hash.
+******
+* Returns :
+* int, Posición de la clave en la tabla hash.
+**** */
 int h(tipoClave k) {
     return k % M;
 }
 
-// Función para insertar en la tabla hash
+/* ****
+* int hashInsert
+******
+* Resumen Función
+* Inserta una clave y su información asociada en la tabla hash. Si la clave ya existe, no se realiza la inserción.
+******
+* Input :
+* ranura HT[] : Tabla hash donde se realiza la inserción.
+* tipoClave k : Clave que se insertará en la tabla.
+* tipoInfo I : Información asociada a la clave que se insertará.
+******
+* Returns :
+* int, 1 si la inserción fue exitosa, 0 si la clave ya existía en la tabla.
+**** */
 int hashInsert(ranura HT[], tipoClave k, tipoInfo I) {
     int inicio, i;
     int pos = inicio = h(k);
     for (i = 1; HT[pos].clave != VACIA && HT[pos].clave != k; i++) {
-        pos = (inicio + i) % M;  // Siguiente ranura en la secuencia
+        pos = (inicio + i) % M; 
     }
     if (HT[pos].clave == k)
-        return 0;  // Inserción no exitosa: clave repetida
+        return 0;
     else {
         HT[pos].clave = k;
         HT[pos].info = I;
-        return 1;  // Inserción exitosa
+        return 1;
     }
 }
 
-// Función para buscar en la tabla hash
+/* ****
+* tipoInfo hashSearch
+******
+* Resumen Función
+* Busca una clave en la tabla hash y devuelve la información asociada a la clave si existe.
+******
+* Input :
+* ranura HT[] : Tabla hash donde se realizará la búsqueda.
+* tipoClave k : Clave a buscar en la tabla.
+******
+* Returns :
+* tipoInfo, Información asociada a la clave encontrada. Si la clave no se encuentra, devuelve un objeto `tipoInfo` con `id` igual a -1.
+**** */
 tipoInfo hashSearch(ranura HT[], tipoClave k) {
     int inicio, i;
     int pos = inicio = h(k);
     for (i = 1; HT[pos].clave != VACIA && HT[pos].clave != k; i++) {
-        pos = (inicio + i) % M;  // Siguiente ranura en la secuencia
+        pos = (inicio + i) % M;
     }
     if (HT[pos].clave == k)
-        return HT[pos].info;  // Registro encontrado, búsqueda exitosa
+        return HT[pos].info;
     else {
         tipoInfo noEncontrado;
         noEncontrado.id = -1;
-        return noEncontrado;  // Clave no encontrada
+        return noEncontrado;
     }
 }
 
-// Definición de las clases
-
-
+/* ****
+* Pedido::Pedido
+******
+* Resumen Función
+* Constructor de la clase Pedido, inicializa los atributos de la clase con valores predeterminados.
+******
+* Input :
+* Ninguno.
+******
+* Returns :
+* Ninguno.
+**** */
 class Pedido {
 private:
     Plato *platos;
-    bool servir;  // true para servir, false para llevar
+    bool servir;
     size_t cant_platos;
     int id;
 
 public:
+    /* ****
+    * Pedido::Pedido
+    ******
+    * Resumen Función
+    * Constructor de la clase Pedido, inicializa los atributos de la clase con valores predeterminados.
+    ******
+    * Input :
+    * Ninguno.
+    ******
+    * Returns :
+    *Ninguno.
+    **** */
     Pedido() : platos(new Plato[25]), servir(false), cant_platos(0), id(-1) {}
 
+    /* ****
+    * Pedido::~Pedido
+    ******
+    * Resumen Función
+    * Destructor de la clase Pedido, libera la memoria reservada para los platos.
+    ******
+    * Input :
+    * Ninguno.
+    ******
+    * Returns :
+    * Ninguno.
+    **** */
     ~Pedido() {
         delete[] platos;
     }
 
+    /* ****
+    * void Pedido::agregar_plato
+    ******
+    * Resumen Función
+    * Agrega un plato al pedido, copiando su nombre y precio en el arreglo de platos.
+    ******
+    * Input :
+    * Plato *plato : Puntero al plato a agregar.
+    ******
+    * Returns :
+    * Ninguno.
+    **** */
     void agregar_plato(Plato *plato) {
         platos[cant_platos].nombre = plato->nombre;
         platos[cant_platos].precio = plato->precio;
         cant_platos += 1;
     }
 
+    /* ****
+    * int Pedido::precio_total
+    ******
+    * Resumen Función
+    * Calcula el precio total del pedido sumando el precio de cada plato en el arreglo de platos.
+    ******
+    * Input :
+    * Ninguno.
+    ******
+    * Returns :
+    * int, Precio total del pedido.
+    **** */
     int precio_total() {
         int precio_d = 0;
         for (size_t n = 0; n < cant_platos; ++n) {
@@ -99,38 +189,123 @@ public:
         return precio_d;
     }
 
+    /* ****
+    * void Pedido::definir_TFyID
+    ******
+    * Resumen Función
+    * Define el ID y el tipo de un pedido (mesa o llevar).
+    ******
+    * Input :
+    *int Puesto : ID del pedido.
+    * bool tf : Tipo del pedido (true para mesa, false para llevar).
+    ******
+    * Returns :
+    * Ninguno.
+    **** */
     void definir_TFyID(int Puesto, bool tf) {
         id = Puesto;
         servir = tf;
     }
 
+    /* ****
+    * void Pedido::definir_Pl
+    ******
+    * Resumen Función
+    * Define los platos del pedido, asignando un nuevo arreglo de platos.
+    ******
+    * Input :
+    * Plato *todo : Puntero al nuevo arreglo de platos.
+    ******
+    * Returns :
+    * Ninguno.
+    **** */
     void definir_Pl(Plato *todo){
         platos= todo;
     }
 
+    /* ****
+    * int Pedido::dar_id
+    ******
+    * Resumen Función
+    * Devuelve el ID del pedido.
+    ******
+    * Input :
+    * Ninguno.
+    ******
+    * Returns :
+    * int, ID del pedido.
+    **** */
     int dar_id() {
         return id;
     }
 
+    /* ****
+    * bool Pedido::dar_tf
+    ******
+    * Resumen Función
+    * Devuelve el tipo del pedido (mesa o llevar).
+    ******
+    * Input :
+    * Ninguno.
+    ******
+    * Returns :
+    * bool, Tipo del pedido (true para mesa, false para llevar).
+    **** */
     bool dar_tf() {
         return servir;
     }
 
+    /* ****
+    * Plato* Pedido::get_platos
+    ******
+    * Resumen Función
+    * Devuelve el arreglo de platos del pedido.
+    ******
+    * Input :
+    * Ninguno.
+    ******
+    * Returns :
+    * Plato*, Puntero al arreglo de platos del pedido.
+    **** */
     Plato *get_platos() {
         return platos;
     }
 
+    /* ****
+    * void Pedido::establecer_cant_platos
+    ******
+    * Resumen Función
+    * Establece la cantidad de platos en el pedido.
+    ******
+    * Input :
+    * size_t cantidad : Número de platos en el pedido.
+    ******
+    * Returns :
+    * Ninguno.
+    **** */
     void establecer_cant_platos(size_t cantidad) {
         cant_platos = cantidad;
     }
 
+    /* ****
+    * void Pedido::recuento
+    ******
+    * Resumen Función
+    * Muestra los platos del pedido y su precio total, incluyendo una propina del 10%.
+    ******
+    * Input :
+    * Ninguno.
+    ******
+    * Returns :
+    * Ninguno.
+    **** */
     void recuento(){
         int suma_f= 0;
         for(int j;platos[j].nombre!= ""; j++){
             cout<<platos[j].nombre<<endl;
             suma_f+= platos[j].precio;
         }
-        cout<<suma_f<<endl;
+        cout<<"precio total: "<<suma_f<<endl;
     }
 };
 
@@ -141,10 +316,33 @@ private:
     size_t size;
 
 public:
+    /* ****
+    * Registro::Registro
+    ******
+    * Resumen Función
+    * Constructor de la clase Registro, inicializa los atributos de la clase con valores predeterminados.
+    ******
+    * Input :
+    * Ninguno.
+    ******
+    * Returns :
+    * Ninguno.
+    **** */
     Registro() :size(0), ganancias(0) {}
 
 
-
+/* ****
+* void Registro::agregar_pedido
+******
+* Resumen Función
+* Agrega un pedido a la tabla hash. Si el pedido ya existe, muestra un mensaje de error.
+******
+* Input :
+* Pedido *pedido : Puntero al pedido a agregar.
+******
+* Returns :
+* Ninguno.
+**** */
     void agregar_pedido(Pedido *pedido) {
         tipoInfo info;
         info.id = pedido->dar_id();
@@ -152,19 +350,30 @@ public:
         info.precio_total = pedido->precio_total();
         info.platos= pedido->get_platos();
 
-        // Inserción del pedido en la tabla hash
         int resultado = hashInsert(HT, info.id, info);
         if (resultado == 1) {
-            cout << "Pedido insertado exitosamente." << endl;
         } else {
             cout << "Error: Pedido ya existe." << endl;
         }
     }
 
+/* ****
+* Pedido* Registro::get_pedido
+******
+* Resumen Función
+* Busca un pedido en la tabla hash según su ID y tipo. Si lo encuentra, lo devuelve, de lo contrario muestra un mensaje de error.
+******
+* Input :
+* int id : ID del pedido a buscar.
+* bool tipo : Tipo del pedido (mesa o llevar).
+******
+* Returns :
+* Pedido*, Puntero al pedido encontrado, o nullptr si no se encuentra.
+**** */
+
     Pedido *get_pedido(int id, bool tipo) {
         tipoInfo info = hashSearch(HT, id);
         if (info.id != -1 && info.tipo == tipo) {
-            cout << "Pedido encontrado: " << info.id << endl;
             Pedido *pedido = new Pedido();
             pedido->definir_TFyID(info.id, info.tipo);
             pedido->definir_Pl(info.platos);
@@ -176,12 +385,23 @@ public:
         }
     }
 
+/* ****
+* void Registro::eliminar_pedido
+******
+* Resumen Función
+* Elimina un pedido de la tabla hash y muestra detalles como el precio total y propina.
+******
+* Input :
+* int id : ID del pedido a eliminar.
+* bool tipo : Tipo del pedido (mesa o llevar).
+******
+* Returns :
+* Ninguno.
+**** */
     void eliminar_pedido(int id, bool tipo) {
         tipoInfo info = hashSearch(HT, id);
         int profit= 0;
         if (info.id != -1 && info.tipo == tipo) {
-            cout << "Pedido eliminado: " << info.id << endl;
-            // Remover el pedido de la tabla hash
             for(int l= 0; info.platos[l].nombre!=""; l++){
                 cout<<info.platos[l].nombre<<" - "<<info.platos[l].precio<<endl;
                 profit+= info.platos[l].precio;
@@ -197,8 +417,21 @@ public:
         } else {
             cout << "Pedido no encontrado." << endl;
         }
+        ganancias += (profit+(profit/10));
     }
 
+/* ****
+* float Registro::dar_fc
+******
+* Resumen Función
+* Calcula el factor de ocupación de la tabla hash, es decir, la proporción de ranuras ocupadas.
+******
+* Input :
+* Ninguno.
+******
+* Returns :
+* float, Factor de ocupación de la tabla hash.
+**** */
     float dar_fc() {
         int total_ocupadas = 0;
         for (int i = 0; i < M; i++) {
@@ -209,17 +442,40 @@ public:
         return (float)total_ocupadas / M;
     }
 
-    // Modificación para ajustar el tamaño de la tabla hash dinámicamente
+/* ****
+* void Registro::mesas_empezar
+******
+* Resumen Función
+* Inicializa la tabla hash y la cantidad de mesas disponibles.
+******
+* Input :
+* int mesas_iniciales : Número de mesas que se deben inicializar.
+******
+* Returns :
+* Ninguno.
+**** */
     void mesas_empezar(int mesas_iniciales) {
-        M = mesas_iniciales;  // Asignar el tamaño de la tabla hash según las mesas
-        HT = new ranura[M];   // Crear la tabla hash con el nuevo tamaño
+        M = mesas_iniciales; 
+        HT = new ranura[M];
         for (int i = 0; i < M; i++) {
-            HT[i].clave = VACIA;  // Inicializar las ranuras como vacías
+            HT[i].clave = VACIA;
         }
         pedidos= new Pedido[M];
     };
 };
 
+/* ****
+* int main
+******
+* Resumen Función
+* Función principal que gestiona la entrada del usuario, el registro de pedidos y la manipulación de mesas.
+******
+* Input :
+* Ninguno.
+******
+* Returns :
+* int, Código de salida del programa.
+**** */
 int main() {
     ifstream file;
     file.open("Menu.txt");
@@ -243,7 +499,6 @@ int main() {
         getline(file, line);
         l_m[i] = line;
         l_m[i] += ' ';
-        cout << l_m[i] << endl;
     }
 
     for (int j = 0; j < cant_platos; j++) {
@@ -262,7 +517,7 @@ int main() {
         Orden[j].precio = stof(pa);
     }
 
-    // Crear la instancia de Registro
+
     Registro *testing = new Registro();
     Pedido *prueba = new Pedido();
     int mesas_iniciales;
@@ -276,15 +531,14 @@ int main() {
 
         if (primera_vez == true) {
             try {
-                // Manejo seguro de la conversión a entero
+
                 mesas_iniciales = stoi(input);
                 testing->mesas_empezar(mesas_iniciales);
                 primera_vez = false;
-                cout << "Tabla hash de tamaño " << M << " creada." << endl;
             } 
             catch (const std::invalid_argument& e) {
                 cout << "Error: Entrada no válida para el número de mesas." << endl;
-                continue; // Volver a pedir el input en caso de error
+                continue;
             }
             catch (const std::out_of_range& e) {
                 cout << "Error: Número de mesas fuera de rango." << endl;
@@ -293,7 +547,8 @@ int main() {
         }
 
         if(input == "cerrar") {
-        break;
+            cout<<"pedidos pendientes: "<<endl;
+            break;
         }
 
         size_t espacio_pos = input.find(' ');
@@ -363,9 +618,8 @@ int main() {
                 sol_a = false;
             }
             testing->eliminar_pedido(stoi(mas_exacta),sol_a);
-            cout<<testing->dar_fc()<<endl;;
+            cout<<testing->dar_fc()<<endl;
         }
-        // Aquí podrían ir más condiciones para otros comandos.
     }
 
 
